@@ -40,10 +40,9 @@ function CountryList() {
   const { data } = useQuery(COUNTRIES_QUERY);
   const [filter, setFilter] = useState("");
   const [selectedCountry, setSelectedCountry] = useState(null);
-  const [selectedColorIndex, setSelectedColorIndex] = useState(-1); // Renk indexini saklamak için eklenen state
-  const [previousCountry, setPreviousCountry] = useState(null); // Önceki seçilen ülkeyi saklamak için eklenen state
-  const [selectedCountries, setSelectedCountries] = useState([]);
-
+  const [selectedColorIndex, setSelectedColorIndex] = useState(-1);
+  const [previousCountry, setPreviousCountry] = useState(null);
+  const [loadedCountryCount, setLoadedCountryCount] = useState(10);
 
   useEffect(() => {
     if (data && data.countries.length > 0) {
@@ -56,21 +55,18 @@ function CountryList() {
     setFilter(event.target.value);
   };
 
-  // birden fazla ülke seçiminin yapılmasını sağlayan fonksiyon
   const handleCountryClick = (country) => {
     if (selectedCountry === country) {
-      // Eğer aynı ülkeye tekrar tıklanırsa, rengi beyaza döndür
       setSelectedCountry(null);
-      setPreviousCountry(null); // Önceki seçilen ülkeyi sıfırla
+      setPreviousCountry(null);
     } else {
       setSelectedCountry(country);
-      // Bir sonraki renk için indexi güncelle
       let nextColorIndex = selectedColorIndex + 1;
       if (nextColorIndex >= colorPalette.length) {
-        nextColorIndex = 0; // Paletin sonuna ulaştıysak başa dön
+        nextColorIndex = 0;
       }
       setSelectedColorIndex(nextColorIndex);
-      setPreviousCountry(country); // Şu an seçilen ülkeyi önceki olarak kaydet
+      setPreviousCountry(country);
     }
   };
 
@@ -80,6 +76,11 @@ function CountryList() {
           country.name.toLowerCase().includes(filter.toLowerCase())
         )
     : [];
+
+  const handleLoadMore = () => {
+    setLoadedCountryCount(loadedCountryCount + 10);
+  };
+
   return (
     <div className="p-5">
       <h1 className="text-center">Countries</h1>
@@ -94,19 +95,18 @@ function CountryList() {
           className=""
         ></TEInput>
       </div>
-      <div className="m-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {/* // pick a different color for each country */}
 
-        {filteredCountries.map((country, index) => (
+      <div className="m-3 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {filteredCountries.slice(0, loadedCountryCount).map((country, index) => (
           <div
-          key={country.name}
-          onClick={() => handleCountryClick(country)}
-          className={`p-4 border ${
-            selectedCountry === country
-              ? colorPalette[selectedColorIndex % colorPalette.length] + " cursor-pointer"
-              : "bg-white cursor-pointer"
-          }`}
-        >
+            key={country.name}
+            onClick={() => handleCountryClick(country)}
+            className={`p-4 border ${
+              selectedCountry === country
+                ? colorPalette[selectedColorIndex % colorPalette.length] + " cursor-pointer"
+                : "bg-white cursor-pointer"
+            }`}
+          >
             <div className="rounded-lg bg-white text-center shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] dark:bg-neutral-700">
               <div className="border-b-2 border-neutral-100 px-6 py-3 dark:border-neutral-600 dark:text-neutral-50">
                 {country.name}
@@ -129,9 +129,17 @@ function CountryList() {
           </div>
         ))}
       </div>
+      {filteredCountries.length > loadedCountryCount && (
+        <div className="flex justify-center">
+          <button onClick={handleLoadMore} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mt-5">
+            Load More
+          </button>
+        </div>
+      )}
     </div>
   );
 }
+
 
 export default CountryList;
 
