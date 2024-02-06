@@ -17,7 +17,7 @@ This is a simple React web application that displays a list of countries using G
 ## Code Structure
 
 - `src/App.js`: The main application component that sets up Apollo Client and renders the `CountryList` component.
-- `src/Components/CountryList.js`: The component responsible for fetching and displaying the list of countries.
+- `src/Cbmponents/CountryList.js`: The component responsible for fetching and displaying the list of countries.
 
 ## Dependencies
 
